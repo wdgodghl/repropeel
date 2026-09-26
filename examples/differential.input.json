@@ -1,0 +1,11 @@
+{
+  "job": "invoice-preview",
+  "trace": { "enabled": true, "sampleRate": 1 },
+  "items": [
+    { "sku": "A", "quantity": 1, "unitPrice": 12.00 },
+    { "sku": "B", "quantity": 1, "unitPrice": 0.005 },
+    { "sku": "C", "quantity": 1, "unitPrice": 0.005 },
+    { "sku": "D", "quantity": 2, "unitPrice": 8.50 }
+  ],
+  "options": { "currency": "USD", "locale": "en-US" }
+}
