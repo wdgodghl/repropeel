@@ -3,7 +3,7 @@ pub(all) enum Verdict {
   Interesting
   Rejected
   Unresolved
-} derive(Show, Eq)
+}
 
 pub struct Stats {
   mut checks : Int
@@ -18,7 +18,7 @@ pub struct Result {
   stats : Stats
 }
 
-struct State {
+priv struct State {
   mut current : Json
   checker : (Json) -> Verdict
   cache : Map[String, Verdict]

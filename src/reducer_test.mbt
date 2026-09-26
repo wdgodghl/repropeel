@@ -1,6 +1,6 @@
 test "remove irrelevant object fields" {
   let input : Json = { "noise": 1, "keep": { "bug": true, "extra": 2 } }
-  let result = reduce(input, 100, fn(candidate) {
+  let result = @src.reduce(input, 100, fn(candidate) {
     if candidate is { "keep": { "bug": True, .. }, .. } {
       Interesting
     } else {
@@ -13,14 +13,14 @@ test "remove irrelevant object fields" {
 
 test "budget stops attempts" {
   let input : Json = [1, 2, 3, 4]
-  let result = reduce(input, 1, fn(_) { Rejected })
+  let result = @src.reduce(input, 1, fn(_) { Rejected })
   assert_true(result.stats.checks == 1)
   assert_true(result.stats.exhausted)
 }
 
 test "empty and scalar inputs remain unchanged" {
-  let empty : Json = {}
+  let empty : Json = Json::empty_object()
   let scalar : Json = 7
-  assert_true(reduce(empty, 10, fn(_) { Interesting }).value == empty)
-  assert_true(reduce(scalar, 10, fn(_) { Interesting }).value == scalar)
+  assert_true(@src.reduce(empty, 10, fn(_) { Interesting }).value == empty)
+  assert_true(@src.reduce(scalar, 10, fn(_) { Interesting }).value == scalar)
 }

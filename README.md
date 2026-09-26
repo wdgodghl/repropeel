@@ -2,7 +2,7 @@
 
 用 MoonBit 缩小能够稳定触发错误的 JSON 输入。输入一份故障文件和一条检查命令，ReproPeel 按块删除对象字段、数组元素，再递归处理嵌套结构。只有检查命令确认目标故障仍存在时，候选才会被保留。
 
-当前实现已在 [GitHub Actions](https://github.com/wdgodghl/repropeel/actions/workflows/ci.yml) 的 JavaScript 后端通过 MoonBit 类型检查、单元测试和三个端到端缩减案例。案例会验证输出仍触发目标条件且比输入更小。Windows 本机运行尚未验证。
+当前实现已在 [GitHub Actions](https://github.com/wdgodghl/repropeel/actions/workflows/ci.yml) 和 Windows 本机的 JavaScript 后端通过 MoonBit 类型检查、单元测试和三个端到端缩减案例。案例会验证输出仍触发目标条件且比输入更小。本机运行记录见 [验证报告](docs/verification-2026-09-26.md)。
 
 ## 环境
 
