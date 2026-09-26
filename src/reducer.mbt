@@ -88,10 +88,10 @@ fn replace_at(value : Json, path : Array[Int], replacement : Json) -> Json {
           next.push(items[i])
         }
       }
-      Array(next)
+      @json.to_json(next)
     }
     Object(fields) => {
-      let next : Map[String, Json] = {}
+      let next : Map[String, Json] = Map([])
       let rest : Array[Int] = []
       for j = 1; j < path.length(); j = j + 1 { rest.push(path[j]) }
       let mut i = 0
@@ -103,7 +103,7 @@ fn replace_at(value : Json, path : Array[Int], replacement : Json) -> Json {
         }
         i += 1
       }
-      Object(next)
+      @json.to_json(next)
     }
     _ => value
   }
@@ -134,16 +134,16 @@ fn remove_chunk(value : Json, start : Int, end : Int) -> Json {
       for i = 0; i < items.length(); i = i + 1 {
         if i < start || i >= end { next.push(items[i]) }
       }
-      Array(next)
+      @json.to_json(next)
     }
     Object(fields) => {
-      let next : Map[String, Json] = {}
+      let next : Map[String, Json] = Map([])
       let mut i = 0
       for key, item in fields {
         if i < start || i >= end { next.set(key, item) }
         i += 1
       }
-      Object(next)
+      @json.to_json(next)
     }
     _ => value
   }
@@ -202,7 +202,7 @@ fn peel(state : State, path : Array[Int]) -> Unit {
 /// Baseline checking and final independent verification are the CLI's responsibility.
 pub fn reduce(input : Json, max_checks : Int, checker : (Json) -> Verdict) -> Result {
   let stats = Stats::{ checks: 0, cache_hits: 0, unresolved: 0, accepted: 0, exhausted: false }
-  let state = State::{ current: input, checker, cache: {}, limit: max_checks, stats }
+  let state = State::{ current: input, checker, cache: Map([]), limit: max_checks, stats }
   peel(state, [])
   Result::{ value: state.current, stats }
 }
