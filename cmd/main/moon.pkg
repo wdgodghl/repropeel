@@ -1,0 +1,6 @@
+import {
+  "wdgodghl/repropeel/src" @reducer,
+  "moonbitlang/core/json" @json,
+}
+
+pkgtype(kind: "executable")
