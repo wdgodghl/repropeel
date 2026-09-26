@@ -1,49 +1,53 @@
 # 剥例 ReproPeel
 
-**把复杂的 JSON 故障输入，缩减成更容易排查的小样本。**
+用 MoonBit 缩小能够稳定触发错误的 JSON 输入。输入一份故障文件和一条检查命令，ReproPeel 按块删除对象字段、数组元素，再递归处理嵌套结构。只有检查命令确认目标故障仍存在时，候选才会被保留。
 
-A MoonBit JSON failure-input reducer: peel away irrelevant data while preserving a user-defined failure predicate.
+> 当前为开发版。三个示例检查脚本的基线已用 Node.js 检查；MoonBit 源码尚待官方工具链编译和端到端验证。请勿将其视为已发布的稳定工具。
 
-## 项目状态
+## 环境
 
-项目已完成选题与首版范围设计，正在准备开发。当前仓库包含项目说明、开发计划和许可证，尚未提供可运行版本。以下功能均为计划功能。
+- [MoonBit CLI Tools](https://www.moonbitlang.com/download/)
+- Node.js 18 或更高版本
+- 当前命令行后端为 JavaScript；MoonBit 负责缩减算法与流程，Node.js FFI 负责文件和子进程。
 
-本项目计划参加 [2026 MoonBit 黑客松](https://moonbitlang.github.io/Hackathon2026/)。报名及审核状态以赛事方确认结果为准。
+## 快速开始
 
-## 解决的问题
+```sh
+moon check --target js
+moon test --target js
+moon run --target js cmd/main -- examples/duplicate-id.input.json --out duplicate-min.json --report duplicate-report.json --max-checks 500 --timeout-ms 5000 -- node examples/duplicate-id.checker.js {candidate}
+```
 
-程序可能只在处理一份很大的 JSON 文件时出错。开发者通常需要反复删除字段和数组元素、重新运行程序，才能找到容易理解的复现样本。
+两条输出路径在运行前都必须不存在。`{candidate}` 是完整参数占位符，不能嵌入其他文字。检查命令直接执行，不经过 shell。
 
-ReproPeel 计划自动完成这个过程：
+## 检查协议
 
-1. 输入一份能够稳定复现问题的 JSON 文件。
-2. 提供一条检查命令，用于判定候选输入是否仍触发目标错误。
-3. 工具逐步删除对象字段、数组元素和无关子树，并重新检查。
-4. 输出更小的复现文件，以及记录缩减过程和停止原因的报告。
+| 检查命令退出码 | 含义 | 处理 |
+| --- | --- | --- |
+| 0 | 目标故障仍然存在 | 接受更小候选 |
+| 1 | 目标故障消失或前提不成立 | 拒绝候选 |
+| 其他、启动失败或超时 | 无法判断 | 拒绝候选，记录次数 |
 
-每个候选输入保持合法 JSON。业务约束和目标错误由检查命令判断。缩减结果不保证是全局最小样本，也不能单凭退出码证明故障根因相同。
+工具先对原始输入做基线检查，结束时再次独立检查最终候选。两次都需要退出码 0。候选文件位于系统临时目录；原始输入不会被覆盖。`--max-checks` 约束缩减期间的检查次数，不含基线和最终复查。
 
-## 首版计划
+检查命令必须识别**同一个目标故障**，不能简单地把所有异常当成故障仍存在。ReproPeel 只保证输出是合法 JSON，业务规则由检查命令负责。结果是局部缩减，不保证全局最小。
 
-- 使用 MoonBit 实现可复用的缩减核心和命令行工具。
-- 支持 JSON 对象字段、数组元素的分块删除与递归缩减。
-- 将候选文件交给外部检查命令，区分目标错误仍存在、目标错误消失和检查无法判定。
-- 缓存重复候选的检查结果。
-- 设置单次检查超时和总尝试次数限制。
-- 保留原始输入，输出独立的缩减文件。
-- 输出输入规模、检查次数、缓存命中和停止原因等统计。
-- 提供测试、可复现案例和使用说明。
+## 案例
 
-完整的首版范围与验收条件见 [开发计划](PLAN.md)。
+| 目录 | 目标故障 | 可保留的必要条件 |
+| --- | --- | --- |
+| `examples/duplicate-id.*` | 导入记录出现重复 ID | 至少两条相同 ID 记录 |
+| `examples/nested-config.*` | 转换阶段重试数为负 | `transform` 阶段及 `retry: -1` |
+| `examples/differential.*` | 两种金额汇总方式不一致 | 两个 `0.005` 单价项目 |
 
-## 与已有工具的关系
+把快速开始中的示例路径和输出文件名替换即可运行其他案例。检查脚本只是确定性的演示，实际使用时应调用你的程序并精确核对目标错误。
 
-测试输入缩减是已有研究方向，本项目不主张发明新的缩减算法。MoonBit QuickCheck 已支持属性测试中的反例缩减；ReproPeel 聚焦开发者已有的 JSON 故障文件，并通过外部检查命令连接被测程序。
+## 报告字段
 
-- [MoonBit 属性测试介绍](https://www.moonbitlang.com/blog/property-based-testing-moonbit)
-- [MoonBit 文档](https://docs.moonbitlang.com/)
-- [MoonBit 异步进程 API](https://mooncakes.io/docs/moonbitlang/async/process)
+报告为 JSON，包含 `input_bytes`、`output_bytes`、`candidate_checks`、`cache_hits`、`unresolved_checks`、`accepted_reductions`、`budget_exhausted` 和 `final_verified`。目前不记录逐次候选和检查命令的标准输出。
 
-## 许可证
+## 项目说明
 
-[MIT](LICENSE)
+本项目计划参加 [2026 MoonBit 黑客松](https://moonbitlang.github.io/Hackathon2026/)。参赛与审核状态以赛事方确认为准。测试输入缩减已有先例；本项目针对**已存在的 JSON 故障文件**以及任意外部检查命令，不主张发明新的缩减算法。开发范围与验收条件见 [PLAN.md](PLAN.md)。
+
+许可证：[MIT](LICENSE)。
