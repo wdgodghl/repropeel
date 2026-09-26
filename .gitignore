@@ -1,0 +1,13 @@
+# MoonBit build output and downloaded dependencies
+/_build/
+/target/
+/.mooncakes/
+
+# Local settings and secrets
+.env
+.env.*
+!.env.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
