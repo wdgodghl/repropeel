@@ -1,0 +1,12 @@
+{
+  "ui": { "theme": "light", "density": "comfortable" },
+  "logging": { "level": "debug", "destinations": ["stdout"] },
+  "pipeline": {
+    "name": "report",
+    "stages": [
+      { "kind": "fetch", "url": "https://example.invalid" },
+      { "kind": "transform", "config": { "mode": "strict", "retry": -1, "trace": true } },
+      { "kind": "export", "format": "json" }
+    ]
+  }
+}
