@@ -1,0 +1,10 @@
+{
+  "source": "nightly-import",
+  "metadata": { "trace": "sample-2026", "operator": "demo" },
+  "records": [
+    { "id": "a1", "name": "A", "tags": ["unused"] },
+    { "id": "b2", "name": "B", "tags": ["unused"] },
+    { "id": "a1", "name": "C", "tags": ["unused"] },
+    { "id": "c3", "name": "D", "tags": ["unused"] }
+  ]
+}
