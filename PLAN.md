@@ -1,6 +1,6 @@
 # ReproPeel 首版开发计划
 
-状态：开发版源码已写入；MoonBit 编译与端到端验证待完成。时间安排按三个集中开发日估算。
+状态：MoonBit JavaScript 后端已通过 GitHub Actions 类型检查、单元测试和三个端到端案例；Windows 本机运行待验证。时间安排按三个集中开发日估算。
 
 ## 目标用户与输入
 
