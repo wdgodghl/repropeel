@@ -1,0 +1,33 @@
+name: MoonBit JS checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Install official MoonBit toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Tool versions
+        run: |
+          moon version --all
+          node --version
+      - name: Type check
+        run: moon check --target js
+      - name: MoonBit tests
+        run: moon test --target js
+      - name: Example baselines
+        run: |
+          node examples/duplicate-id.checker.js examples/duplicate-id.input.json
+          node examples/nested-config.checker.js examples/nested-config.input.json
+          node examples/differential.checker.js examples/differential.input.json
