@@ -31,3 +31,14 @@ jobs:
           node examples/duplicate-id.checker.js examples/duplicate-id.input.json
           node examples/nested-config.checker.js examples/nested-config.input.json
           node examples/differential.checker.js examples/differential.input.json
+      - name: End-to-end reduction
+        run: |
+          for case in duplicate-id nested-config differential; do
+            input="examples/$case.input.json"
+            output="$RUNNER_TEMP/$case.min.json"
+            report="$RUNNER_TEMP/$case.report.json"
+            moon run --target js cmd/main -- "$input" --out "$output" --report "$report" --max-checks 500 --timeout-ms 5000 -- node "examples/$case.checker.js" '{candidate}'
+            node "examples/$case.checker.js" "$output"
+            test -f "$report"
+            test "$(wc -c < "$output")" -lt "$(wc -c < "$input")"
+          done
